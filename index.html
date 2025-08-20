@@ -210,102 +210,109 @@
   </section>
 
   <canvas id="confetti-canvas"></canvas>
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<script type="text/javascript">
+  emailjs.init("D7-X1lQ2aCvTAXOpL"); // ✅ Your actual public key
 
-  <script>
-    emailjs.init("D7-X1lQ2aCvTAXOpL"); // Replace with your EmailJS public key
+  document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('contact-form');
+    const sendButton = form.querySelector('button');
+    const thankYou = document.getElementById('thank-you');
+    const terminal = document.getElementById('terminal-output');
+    const canvas = document.getElementById('confetti-canvas');
+    const ctx = canvas.getContext('2d');
+    const charCount = document.getElementById('char-count');
+    const messageBox = form.querySelector('textarea');
 
-    document.addEventListener('DOMContentLoaded', () => {
-      const form = document.getElementById('contact-form');
-      const sendButton = form.querySelector('button');
-      const thankYou = document.getElementById('thank-you');
-      const terminal = document.getElementById('terminal-output');
-      const canvas = document.getElementById('confetti-canvas');
-      const ctx = canvas.getContext('2d');
-      const charCount = document.getElementById('char-count');
-      const messageBox = form.querySelector('textarea');
+    // Resize canvas for confetti
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
 
-      function resizeCanvas() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-      }
-      resizeCanvas();
-      window.addEventListener('resize', resizeCanvas);
-
-      messageBox.addEventListener('input', () => {
-        charCount.textContent = `📝 ${messageBox.value.length} / 500 characters`;
-      });
-
-      function launchConfetti() {
-        let particles = [];
-        for (let i = 0; i < 100; i++) {
-          particles.push({
-            x: canvas.width / 2,
-            y: canvas.height / 2,
-            dx: (Math.random() - 0.5) * 10,
-            dy: (Math.random() - 0.5) * 10,
-            size: Math.random() * 5 + 2,
-            color: `hsl(${Math.random() * 360}, 100%, 50%)`,
-            life: 100
-          });
-        }
-
-        function draw() {
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-          particles.forEach(p => {
-            ctx.fillStyle = p.color;
-            ctx.beginPath();
-            ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-            ctx.fill();
-                       p.x += p.dx;
-            p.y += p.dy;
-            p.life--;
-          });
-          particles = particles.filter(p => p.life > 0);
-          if (particles.length > 0) {
-            requestAnimationFrame(draw);
-          }
-        }
-        draw();
-      }
-
-      form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        sendButton.disabled = true;
-
-        emailjs.sendForm('YOUR_SERVICE_ID', 'YOUR_TEMPLATE_ID', form)
-          .then(() => {
-            thankYou.style.display = 'block';
-            terminal.style.display = 'block';
-            terminal.textContent = `> Sending message...\n> Message delivered successfully!\n> Thanks, ${form.name.value}! 🎉`;
-            launchConfetti();
-            form.reset();
-            charCount.textContent = '📝 0 / 500 characters';
-            sendButton.disabled = false;
-          })
-          .catch((error) => {
-            terminal.style.display = 'block';
-            terminal.textContent = `> Error sending message.\n> ${error.text}`;
-            sendButton.disabled = false;
-          });
-      });
-
-      // 🐾 Emoji trail
-      const emojis = ['✨', '🌟', '💥', '🔥', '💫'];
-      document.addEventListener('mousemove', (e) => {
-        const emoji = document.createElement('div');
-        emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-        emoji.style.position = 'fixed';
-        emoji.style.left = `${e.clientX}px`;
-        emoji.style.top = `${e.clientY}px`;
-        emoji.style.fontSize = '1.5rem';
-        emoji.style.pointerEvents = 'none';
-        emoji.style.animation = 'fadeOut 1s ease-out forwards';
-        document.body.appendChild(emoji);
-        setTimeout(() => emoji.remove(), 1000);
-      });
+    // Character counter
+    messageBox.addEventListener('input', () => {
+      charCount.textContent = `📝 ${messageBox.value.length} / 500 characters`;
     });
-  </script>
+
+    // Confetti burst
+    function launchConfetti() {
+      let particles = [];
+      for (let i = 0; i < 100; i++) {
+        particles.push({
+          x: canvas.width / 2,
+          y: canvas.height / 2,
+          dx: (Math.random() - 0.5) * 10,
+          dy: (Math.random() - 0.5) * 10,
+          size: Math.random() * 5 + 2,
+          color: `hsl(${Math.random() * 360}, 100%, 50%)`,
+          life: 100
+        });
+      }
+
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        particles.forEach(p => {
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+          p.x += p.dx;
+          p.y += p.dy;
+          p.life--;
+        });
+        particles = particles.filter(p => p.life > 0);
+        if (particles.length > 0) {
+          requestAnimationFrame(draw);
+        }
+      }
+      draw();
+    }
+
+    // Form submission
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      sendButton.disabled = true;
+
+      emailjs.sendForm('service_l42iex9', 'template_wcy7h0p', form)
+        .then(() => {
+          thankYou.style.display = 'block';
+          terminal.style.display = 'block';
+          terminal.textContent = `> Sending message...\n> Message delivered successfully!\n> Thanks, ${form.name.value}! 🎉`;
+          launchConfetti();
+          form.reset();
+          charCount.textContent = '📝 0 / 500 characters';
+          sendButton.disabled = false;
+        })
+        .catch((error) => {
+          terminal.style.display = 'block';
+          terminal.textContent = `> Error sending message.\n> ${error.text}`;
+          sendButton.disabled = false;
+        });
+    });
+
+    // Emoji trail
+    const emojis = ['✨', '🌟', '💥', '🔥', '💫'];
+    document.addEventListener('mousemove', (e) => {
+      const emoji = document.createElement('div');
+      emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      emoji.style.position = 'fixed';
+      emoji.style.left = `${e.clientX}px`;
+      emoji.style.top = `${e.clientY}px`;
+      emoji.style.fontSize = '1.5rem';
+      emoji.style.pointerEvents = 'none';
+      emoji.style.animation = 'fadeOut 1s ease-out forwards';
+      document.body.appendChild(emoji);
+      setTimeout(() => emoji.remove(), 1000);
+    });
+  });
+</script>
+
+  
 </body>
 
 </html>
+
 
